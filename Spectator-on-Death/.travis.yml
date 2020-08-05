@@ -1,3 +1,0 @@
-language: java
-jdk: openjdk8
-script: mvn -f Spectator-on-Death/pom.xml clean package -U
