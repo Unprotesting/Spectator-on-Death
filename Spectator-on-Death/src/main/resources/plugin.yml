@@ -1,0 +1,8 @@
+name: SpectatoronDeath
+author: Unprotesting
+version: 2.0
+main: unprotesting.com.github.Main
+permissions:
+    sod.gospectator:
+        description: Allows you to go into spectator on death
+        default: false
