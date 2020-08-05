@@ -59,7 +59,7 @@ public class DeathEvent implements Listener {
           Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', 
                 Main.instance.getConfig().getString("broadcast-message").replace("%PLAYER%", player.getName()))); 
       } 
-      if (Main.instance.getConfig().getBoolean("auto-respawn") && player.hasPermission("sod.gospectator") == true &&
+      if (Main.instance.getConfig().getBoolean("auto-respawn") && player.hasPermission("sod.gospectator") == true && player.hasPermission("sod.autorespawn") == true &&
         player.getHealth() - event.getFinalDamage() <= 0.0D && event.getEntity() instanceof Player) {
         if (Main.instance.getConfig().getBoolean("effect"))
           player.spawnParticle(Particle.valueOf(this.effect), player.getLocation(), 20); 

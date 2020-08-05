@@ -6,3 +6,6 @@ permissions:
     sod.gospectator:
         description: Allows you to go into spectator on death
         default: false
+    sod.autorespawn:
+        description: Allows you to respawn after death
+        default: false

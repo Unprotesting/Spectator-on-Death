@@ -9,7 +9,7 @@ auto-respawn:
   time: 5
 
 # The message when the player dies
-death-message: '&c(!) %PLAYER% has just died and  has been put into Spectator Mode!'
+death-message: '&c(!) %PLAYER% has just died and has been put into Spectator Mode!'
 
 # Should the plugin broadcast a message when the player dies
 broadcast: true
