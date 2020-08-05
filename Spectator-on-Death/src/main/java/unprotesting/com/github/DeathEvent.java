@@ -17,12 +17,7 @@ public class DeathEvent implements Listener {
   public HashMap<String, Long> cooldown = new HashMap<>();
   
   public Plugin instance;
-  
-  public void function() {
-    Main plugin = (Main)Main.instance;
-    plugin.getServer();
-  }
-  
+
   public String deathmessage = Main.instance.getConfig().getString("death-message");
   public String AutoRespawnMessage = Main.instance.getConfig().getString("auto-respawn.auto-respawn-message");
   public String respawnMessage = Main.instance.getConfig().getString("respawn-message");
@@ -32,6 +27,11 @@ public class DeathEvent implements Listener {
   public String BroadcastMessage = Main.instance.getConfig().getString("broadcast-message");
   public String effect = Main.instance.getConfig().getString("effect");
   public String respawnLocation = Main.instance.getConfig().getString("respawn-location");
+  
+  public void function() {
+    Main plugin = (Main)Main.instance;
+    plugin.getServer();
+  }
   
   @EventHandler
   public void damage(EntityDamageEvent event) {
