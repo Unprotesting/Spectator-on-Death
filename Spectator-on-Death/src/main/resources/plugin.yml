@@ -1,6 +1,6 @@
-name: SpectatoronDeath
+name: Spectator-on-Death
 author: Unprotesting
-version: 2.0
+version: ${project.version}
 main: unprotesting.com.github.Main
 permissions:
     sod.gospectator:

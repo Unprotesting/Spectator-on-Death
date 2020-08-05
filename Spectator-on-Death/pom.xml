@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>unprotesting.com.github</groupId>
   <artifactId>Spectator-on-Death</artifactId>
-  <version>0.0.1</version>
+  <version>0.2.1</version>
   <name>Spectator-on-Death</name>
 
   <description>A plugin to turn dead players into spectator</description>

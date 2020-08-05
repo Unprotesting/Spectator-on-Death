@@ -38,6 +38,8 @@ public class DeathEvent implements Listener {
   String BroadcastMessage = Main.instance.getConfig().getString("broadcast-message");
   
   String effect = Main.instance.getConfig().getString("effect");
+
+  String respawnLocation = Main.instance.getConfig().getString("respawn-location");
   
   @EventHandler
   public void damage(EntityDamageEvent event) {
@@ -90,4 +92,40 @@ public class DeathEvent implements Listener {
               cmd.replace("%PLAYER%", player.getName()));  
     } 
   }
+
+  public void respawnLocation(Player player){
+    if (respawnLocation == "none"){
+      return;
+    }
+    if (respawnLocation == "nearest-player"){
+      Player nearestPlayer = getNearestPlayer(player);
+      Boolean teleported = player.teleport(nearestPlayer);
+      if (teleported){
+        player.sendMessage("Teleported to nearest player: " + nearestPlayer.getCustomName());
+      }
+      else{
+        player.sendMessage("Error teleporting to nearest player: " + nearestPlayer.getCustomName());
+      }
+    }
+    if (respawnLocation == "coordinates"){
+      player.teleport(new Location(player.getWorld(), Main.instance.getConfig().getDouble("locationx"), Main.instance.getConfig().getDouble("locationy"),
+      Main.instance.getConfig().getDouble("locationy"), player.getLocation().getYaw(), player.getLocation().getPitch()));
+    }
+  }
+
+  public Player getNearestPlayer(Player player) {
+    double distNear = 0.0D;
+    Player playerNear = null;
+    for (Player player2 : Bukkit.getOnlinePlayers()) {
+        if (player == player2) { continue; }
+        if (player.getWorld() != player2.getWorld()) { continue; }
+        Location location = player.getLocation();
+        double dist = player.getLocation().distance(location);
+        if (playerNear == null || dist < distNear) {
+            playerNear = player2;
+            distNear = dist;
+        }
+    }
+    return playerNear;
+}
 }
