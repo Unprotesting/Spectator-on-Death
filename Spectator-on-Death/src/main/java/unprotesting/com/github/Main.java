@@ -1,15 +1,12 @@
 package unprotesting.com.github;
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin implements Listener {
-  FileConfiguration config = getConfig();
-  
-  Server getserver = getServer();
+  private FileConfiguration config = getConfig();
   
   public static Plugin instance;
   
