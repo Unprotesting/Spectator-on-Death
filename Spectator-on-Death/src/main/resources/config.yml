@@ -1,9 +1,7 @@
-# Autorespawn set to true to enable it, then setup the message and time in seconds.
-# KickonDeath set to true to enable it, then setup the command
 # Use %PLAYER% to replace playername in broadcasts/messages
 
-# Autorespawn?
-auto-respawn-enabled: false
+# Autorespawn enabled
+auto-respawn-enabled: true
 auto-respawn: 
   auto-respawn-message: '&b(!) You have just died. You will respawn in 10 seconds!'
   time: 5
@@ -21,12 +19,12 @@ playsound: true
 sound: 'BLOCK_LAVA_EXTINGUISH'
 
 # Send a effect when the player dies
-effect-enabled: true
+effect-enabled: false
 # Effect type
 effect: 'HEART'
 
 # Should the plugin send a command when the player dies?
-death-command: true
+death-command: false
 death-commands:
   - 'spawn %PLAYER%'
 
@@ -39,9 +37,9 @@ respawn-subtitle: '&bDont die again'
 
 # Respawn location (options: none, nearest-player, coordinates)
 respawn-location: 'nearest-player'
-  ## Only enabled if respawn-location is set to coordinates
-  locationx: 0.5
-  locationy: 70.0
-  locationz: 0.5
+## Only enabled if respawn-location is set to coordinates
+locationx: 0.5
+locationy: 70.0
+locationz: 0.5
 
-
+debug-mode: false

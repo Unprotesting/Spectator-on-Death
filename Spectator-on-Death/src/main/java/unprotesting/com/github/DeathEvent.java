@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public class DeathEvent implements Listener {
@@ -35,23 +36,23 @@ public class DeathEvent implements Listener {
   
   @EventHandler
   public void damage(EntityDamageEvent event) {
-    loadDamageCheck(event);
-  }
-
-  public void loadDamageCheck(EntityDamageEvent event){
     if (event.getEntity() instanceof Player) {
-      final Player player = (Player)event.getEntity();
-      final Location Loc = event.getEntity().getLocation();
-      this.BroadcastMessage.replace("%PLAYER%", player.getName());
-      deathNoRespawn(player, event);
-      deathRespawn(player, event, Loc);
-      playDeathSound(player);
-      runDeathCommands(player, event);
-      respawnLocation(player);
+    util.debugLog("damage + instanceof Player");
+    final Player player = (Player)event.getEntity();
+    this.BroadcastMessage.replace("%PLAYER%", player.getName());
+    loadDamageCheck(event, player);
     }
   }
 
+  public void loadDamageCheck(EntityDamageEvent event, Player player){
+      util.debugLog("loadDamageCheck");
+      final Location Loc = event.getEntity().getLocation();
+      deathNoRespawn(player, event);
+      deathRespawn(player, event, Loc);
+  }
+
   public Player getNearestPlayer(Player player) {
+    util.debugLog("getNearestPlayer");
     double distNear = 0.0D;
     Player playerNear = null;
     for (Player player2 : Bukkit.getOnlinePlayers()) {
@@ -68,50 +69,76 @@ public class DeathEvent implements Listener {
   }
 
   public void respawnLocation(Player player){
+    util.debugLog("respawnLocation");
     if (respawnLocation.equals("none")){
+      util.debugLog("none");
       return;
     }
     if (respawnLocation.equals("nearest-player")){
+      util.debugLog("nearest-player");
       Player nearestPlayer = getNearestPlayer(player);
-      Boolean teleported = player.teleport(nearestPlayer);
-      if (teleported){
-        player.sendMessage("Teleported to nearest player: " + nearestPlayer.getCustomName());
+      if (nearestPlayer != null){
+        Boolean teleported = player.teleport(nearestPlayer);
+        if (teleported){
+          player.sendMessage("Teleported to nearest player: " + nearestPlayer.getName());
+        }
+        else{
+          player.sendMessage("Error teleporting to nearest player: " + nearestPlayer.getName());
+        }
       }
-      else{
-        player.sendMessage("Error teleporting to nearest player: " + nearestPlayer.getCustomName());
-      }
-    }
+  }
     if (respawnLocation.equals("coordinates")){
+      util.debugLog("coordinates");
       player.teleport(new Location(player.getWorld(), Main.instance.getConfig().getDouble("locationx"), Main.instance.getConfig().getDouble("locationy"),
       Main.instance.getConfig().getDouble("locationy"), player.getLocation().getYaw(), player.getLocation().getPitch()));
     }
   }
 
   public void deathNoRespawn(Player player, EntityDamageEvent event){
-    if (player.hasPermission("sod.gospectator") && !Main.instance.getConfig().getBoolean("autorespawn")) {
-      if (player.getHealth() - event.getFinalDamage() <= 0.0D && event.getEntity() instanceof Player && player.hasPermission("sod.gospectator")) {
+    util.debugLog("deathNoRespawn");
+    if (player.hasPermission("sod.gospectator") && !(player.hasPermission("sod.autorespawn") && !(Main.instance.getConfig().getBoolean("auto-respawn")))) {
+      if (player.getHealth() - event.getFinalDamage() <= 0.0D) {
         event.setCancelled(true);
+        ItemStack[] isTemp = getDropItems(player);
+        dropItems(player, isTemp);
+        player.setHealth(20);
+        player.setFoodLevel(20);
+        player.setSaturation(20);
         player.setGameMode(GameMode.SPECTATOR);
+        util.debugLog("Set gamemode to spectator");
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', 
         this.deathmessage.replace("%PLAYER%", player.getName())));
-        player.spawnParticle(Particle.valueOf(this.effect), player.getLocation(), 20);
-      } 
-      if (Main.instance.getConfig().getBoolean("broadcast"))
+        respawnLocation(player);
+        playDeathSound(player);
+        runDeathCommands(player, event);
+        if (Main.instance.getConfig().getBoolean("effect")){player.spawnParticle(Particle.valueOf(this.effect), player.getLocation(), 20); }
+        if (Main.instance.getConfig().getBoolean("broadcast")){
         Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', 
               Main.instance.getConfig().getString("broadcast-message").replace("%PLAYER%", player.getName()))); 
+        }
+      }
     } 
   }
 
   public void deathRespawn(Player player, EntityDamageEvent event, Location Loc){
-    if (Main.instance.getConfig().getBoolean("auto-respawn") && player.hasPermission("sod.gospectator") && player.hasPermission("sod.autorespawn") &&
+    util.debugLog("deathRespawn");
+    if (Main.instance.getConfig().getBoolean("auto-respawn-enabled") && player.hasPermission("sod.gospectator") && player.hasPermission("sod.autorespawn") &&
     player.getHealth() - event.getFinalDamage() <= 0.0D && event.getEntity() instanceof Player) {
-    if (Main.instance.getConfig().getBoolean("effect"))
-      player.spawnParticle(Particle.valueOf(this.effect), player.getLocation(), 20); 
+    if (Main.instance.getConfig().getBoolean("effect")){player.spawnParticle(Particle.valueOf(this.effect), player.getLocation(), 20); }
       this.cooldown.put(player.getName(), Long.valueOf(System.currentTimeMillis()));
+      ItemStack[] isTemp = getDropItems(player);
+      dropItems(player, isTemp);
+      player.setHealth(20);
+      player.setFoodLevel(20);
+      player.setSaturation(20);
       player.setGameMode(GameMode.SPECTATOR);
+      util.debugLog("Set gamemode to spectator");
+      util.debugLog("Respawning..");
       player.sendMessage(ChatColor.translateAlternateColorCodes('&', 
       this.AutoRespawnMessage.replace("%PLAYER%", player.getName())));
       event.setCancelled(true);
+      playDeathSound(player);
+      runDeathCommands(player, event);
       if (Main.instance.getConfig().getBoolean("Broadcast"))
         Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', this.BroadcastMessage).replace("%PLAYER%", player.getName())); 
       Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.instance, new Runnable() {
@@ -122,7 +149,7 @@ public class DeathEvent implements Listener {
               } else {
                 player.setGameMode(GameMode.SURVIVAL);
                 player.setHealth(20.0D);
-                player.teleport(Loc);
+                respawnLocation(player);
               } 
           }
         },this.Respawncooldown * 20);
@@ -130,17 +157,37 @@ public class DeathEvent implements Listener {
   }
 
   public void playDeathSound(Player player){
+    util.debugLog("playDeathSound");
     if (Main.instance.getConfig().getBoolean("playsound"))
+      util.debugLog("playedDeathSound");
       player.spawnParticle(Particle.valueOf(this.effect), player.getLocation(), 20); 
   }
 
   public void runDeathCommands(Player player, EntityDamageEvent event){
+    util.debugLog("runDeathCommands");
     if (Main.instance.getConfig().getBoolean("death-command") && 
         player.getHealth() - event.getFinalDamage() <= 0.0D && event.getEntity() instanceof Player){
+        util.debugLog("runningDeathCommands");
         for (String cmd : Main.instance.getConfig().getStringList("death-commands"))
           Main.instance.getServer().dispatchCommand((CommandSender)Bukkit.getConsoleSender(), 
               cmd.replace("%PLAYER%", player.getName()));  
         }
-    } 
+    }
+  public ItemStack[] getDropItems(Player player){
+    util.debugLog("getDropItems");
+    ItemStack[] contents = player.getInventory().getContents();
+    player.getInventory().clear();
+    return contents;
   }
+
+  public void dropItems(Player player, ItemStack[] items){
+    util.debugLog("dropItems");
+    for (ItemStack is : items){
+      if (is != null){
+      util.debugLog("dropItem " + (is.getType().toString()));
+      player.getWorld().dropItem(player.getLocation(), is);
+      }
+    }
+}
+}
 
